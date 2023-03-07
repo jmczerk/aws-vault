@@ -124,28 +124,28 @@ func (c *ConfigFile) parseFile() error {
 
 // ProfileSection is a profile section of the config file
 type ProfileSection struct {
-	Name                    string `ini:"-"`
-	MfaSerial               string `ini:"mfa_serial,omitempty"`
-	RoleARN                 string `ini:"role_arn,omitempty"`
-	ExternalID              string `ini:"external_id,omitempty"`
-	Region                  string `ini:"region,omitempty"`
-	RoleSessionName         string `ini:"role_session_name,omitempty"`
-	DurationSeconds         uint   `ini:"duration_seconds,omitempty"`
-	SourceProfile           string `ini:"source_profile,omitempty"`
-	IncludeProfile          string `ini:"include_profile,omitempty"`
-	SSOSession              string `ini:"sso_session,omitempty"`
-	SSOStartURL             string `ini:"sso_start_url,omitempty"`
-	SSORegion               string `ini:"sso_region,omitempty"`
-	SSOAccountID            string `ini:"sso_account_id,omitempty"`
-	SSORoleName             string `ini:"sso_role_name,omitempty"`
-	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
-	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
-	STSRegionalEndpoints    string `ini:"sts_regional_endpoints,omitempty"`
-	SessionTags             string `ini:"session_tags,omitempty"`
-	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
-	SourceIdentity          string `ini:"source_identity,omitempty"`
-	CredentialProcess       string `ini:"credential_process,omitempty"`
-	MfaProcess              string `ini:"mfa_process,omitempty"`
+	Name                      string `ini:"-"`
+	MfaSerial                 string `ini:"mfa_serial,omitempty"`
+	RoleARN                   string `ini:"role_arn,omitempty"`
+	ExternalID                string `ini:"external_id,omitempty"`
+	Region                    string `ini:"region,omitempty"`
+	RoleSessionName           string `ini:"role_session_name,omitempty"`
+	DurationSeconds           uint   `ini:"duration_seconds,omitempty"`
+	SourceProfile             string `ini:"source_profile,omitempty"`
+	IncludeProfile            string `ini:"include_profile,omitempty"`
+	SSOSession                string `ini:"sso_session,omitempty"`
+	SSOStartURL               string `ini:"sso_start_url,omitempty"`
+	SSORegion                 string `ini:"sso_region,omitempty"`
+	SSOAccountID              string `ini:"sso_account_id,omitempty"`
+	SSORoleName               string `ini:"sso_role_name,omitempty"`
+	WebIdentityTokenFile      string `ini:"web_identity_token_file,omitempty"`
+	WebIdentityTokenProcess   string `ini:"web_identity_token_process,omitempty"`
+	STSRegionalEndpoints      string `ini:"sts_regional_endpoints,omitempty"`
+	SessionTags               string `ini:"session_tags,omitempty"`
+	TransitiveSessionTags     string `ini:"transitive_session_tags,omitempty"`
+	SourceIdentity            string `ini:"source_identity,omitempty"`
+	AwsVaultCredentialProcess string `ini:"aws_vault_credential_process,omitempty"`
+	MfaProcess                string `ini:"mfa_process,omitempty"`
 }
 
 // SSOSessionSection is a [sso-session] section of the config file
@@ -384,8 +384,8 @@ func (cl *ConfigLoader) populateFromConfigFile(config *ProfileConfig, profileNam
 	if config.SourceIdentity == "" {
 		config.SourceIdentity = psection.SourceIdentity
 	}
-	if config.CredentialProcess == "" {
-		config.CredentialProcess = psection.CredentialProcess
+	if config.AwsVaultCredentialProcess == "" {
+		config.AwsVaultCredentialProcess = psection.AwsVaultCredentialProcess
 	}
 	if config.MfaProcess == "" {
 		config.MfaProcess = psection.MfaProcess
@@ -615,8 +615,8 @@ type ProfileConfig struct {
 	// SourceIdentity specifies assumed role Source Identity
 	SourceIdentity string
 
-	// CredentialProcess specifies external command to run to get an AWS credential
-	CredentialProcess string
+	// AwsVaultCredentialProcess specifies external command to run to get an AWS credential
+	AwsVaultCredentialProcess string
 }
 
 // SetSessionTags parses a comma separated key=vaue string and sets Config.SessionTags map
@@ -670,8 +670,8 @@ func (c *ProfileConfig) HasWebIdentity() bool {
 	return c.WebIdentityTokenFile != "" || c.WebIdentityTokenProcess != ""
 }
 
-func (c *ProfileConfig) HasCredentialProcess() bool {
-	return c.CredentialProcess != ""
+func (c *ProfileConfig) HasAwsVaultCredentialProcess() bool {
+	return c.AwsVaultCredentialProcess != ""
 }
 
 func (c *ProfileConfig) GetSessionTokenDuration() time.Duration {
@@ -693,7 +693,7 @@ func (c *ProfileConfig) Validate() error {
 	if c.HasWebIdentity() {
 		n++
 	}
-	if c.HasCredentialProcess() {
+	if c.HasAwsVaultCredentialProcess() {
 		n++
 	}
 	if c.HasSourceProfile() {

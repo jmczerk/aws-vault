@@ -166,13 +166,13 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *ProfileConfig, use
 // executable as described in https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 func NewCredentialProcessProvider(k keyring.Keyring, config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
 	credentialProcessProvider := &CredentialProcessProvider{
-		CredentialProcess: config.CredentialProcess,
+		CredentialProcess: config.AwsVaultCredentialProcess,
 	}
 
 	if useSessionCache {
 		return &CachedSessionProvider{
 			SessionKey: SessionMetadata{
-				Type:        "credential_process",
+				Type:        "aws_vault_credential_process",
 				ProfileName: config.ProfileName,
 			},
 			Keyring:         &SessionKeyring{Keyring: k},
@@ -271,7 +271,7 @@ func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.Cre
 		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
-	if config.HasCredentialProcess() {
+	if config.HasAwsVaultCredentialProcess() {
 		log.Printf("profile %s: using credential process", config.ProfileName)
 		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}

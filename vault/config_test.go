@@ -634,7 +634,7 @@ role_arn       = arn:aws:iam::1111111111111:role/admin
 source_profile = foo
 region         = eu-west-2
 mfa_serial     = arn:aws:iam::9999999999999:mfa/david
-credential_process = true
+aws_vault_credential_process = true
 
 [profile withwebidentity]
 role_arn = arn:aws:iam::123457890:role/foo

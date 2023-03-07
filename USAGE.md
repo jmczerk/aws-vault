@@ -31,8 +31,7 @@
   - [Single Sign On (SSO)](#single-sign-on-sso)
   - [Assuming roles with web identities](#assuming-roles-with-web-identities)
   - [Using `credential_process`](#using-credential_process)
-    - [Invoking `aws-vault` via `credential_process`](#invoking-aws-vault-via-credential_process)
-    - [Invoking `credential_process` via `aws-vault`](#invoking-credential_process-via-aws-vault)
+  - [Using `aws_vault_credential_process`](#using-aws_vault_credential_process)
   - [Using a Yubikey](#using-a-yubikey)
     - [Prerequisites](#prerequisites)
     - [Setup](#setup)
@@ -503,8 +502,6 @@ web_identity_token_process = oidccli raw
 
 The [AWS CLI config](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) supports sourcing credentials directly from an external process, using `credential_process`.
 
-### Invoking `aws-vault` via `credential_process`
-
 ```ini
 [profile home]
 credential_process = aws-vault export --format=json home
@@ -532,9 +529,20 @@ source_profile = jon
 
 If you're using `credential_process` in your config to invoke `aws-vault exec` you should not use `aws-vault exec` on the command line to execute commands directly - the AWS SDK executes `aws-vault` for you.
 
-### Invoking `credential_process` via `aws-vault`
+## Using `aws_vault_credential_process`
+The `aws_vault_credential_process` configuration option allows `aws-vault` to source a credential from an external process using the same conventions as [the AWS CLI's own `credential_process` ](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) configuration option.
 
-When executing a profile via `aws-vault exec` that has `credential_process` set, `aws-vault` will execute the specified command to obtain a credential.  This will allow `aws-vault` to cache credentials obtained via `credential_process`.
+Making this an `aws-vault`-specific configuration option avoids issues with use cases that make use of `credential_process` to invoke `aws-vault` (as described in [Using `credential_process`](#using-credential_process)).  
+
+It also allows the mixing of `credential_process` and `aws_vault_credential_processs`, for example:
+
+```ini
+[profile foo]
+credential_process = aws-vault export --no-session --format json foo
+aws_vault_credential_process = my-auth-exe
+```
+
+If a user invokes the AWS CLI with `--profile foo`, the AWS CLI will invoke `aws-vault` to source a credential.  In turn `aws-vault` will invoke `my-auth-exe` to obtain a credential (if a cached credential for profile `foo` is not found).
 
 ## Using a Yubikey
 
